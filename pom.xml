@@ -37,10 +37,10 @@
 
 	<modules>
 		<module>menu-service</module>
-		<module>order-service</module>
-		<module>user-service</module>
-		<module>utils</module>
-		<module>vendor-service</module>
+<!--		<module>order-service</module>-->
+<!--		<module>user-service</module>-->
+<!--		<module>utils</module>-->
+<!--		<module>vendor-service</module>-->
 	</modules>
 
 </project>
