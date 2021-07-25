@@ -1,0 +1,5 @@
+data:
+  mongodb:
+    database: lunchbox
+    host: localhost
+    port: 27017
