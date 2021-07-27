@@ -3,11 +3,15 @@ package com.lunchbox.menuservice.service;
 import com.lunchbox.menuservice.entity.Item;
 import com.lunchbox.menuservice.entity.Restaurant;
 import com.lunchbox.menuservice.exceptions.ProductNotFoundException;
+import com.lunchbox.menuservice.model.RestaurantModel;
+import com.lunchbox.menuservice.repo.ItemRepository;
 import com.lunchbox.menuservice.repo.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,15 +21,36 @@ public class MenuService {
     @Autowired
     private RestaurantRepository restaurantRepo;
 
-    public List<Restaurant> getRestaurants(){
-        return restaurantRepo.findAll();
-    }
+    @Autowired
+    private ItemRepository itemRepo;
 
-    public List<Item> geMenuItems(String restaurantCode){
-        Optional<Restaurant> opt = restaurantRepo.findByCode(restaurantCode);
-        if(opt.isPresent()){
-            return opt.get().getItems();
+    public List<Restaurant> getRestaurants(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return restaurantRepo.findAll();
+        }
+        Optional<Restaurant> restaurantOpt = restaurantRepo.findById(id);
+        if(restaurantOpt.isPresent()){
+            return Arrays.asList(restaurantOpt.get());
         }
         throw new ProductNotFoundException("Restaurant unavailable");
+    }
+
+    public List<Item> geMenuItems(String restaurantId){
+        List<Item> items = itemRepo.findByRestaurantId(restaurantId);
+        if(CollectionUtils.isEmpty(items))
+            throw new ProductNotFoundException("Restaurant unavailable");
+        return items;
+    }
+
+    public void addRestaurant(RestaurantModel restaurant){
+        Restaurant res = new Restaurant();
+        res.setName(restaurant.getName());
+        res.setItemCodes(restaurant.getItemCodes());
+        restaurantRepo.save(res);
+    };
+
+    public void addItems(List<Item> items, String restaurantCode){
+        items.forEach(i -> i.setRestaurantId(restaurantCode));
+        itemRepo.saveAll(items);
     };
 }

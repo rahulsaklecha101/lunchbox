@@ -2,18 +2,12 @@ package com.lunchbox.menuservice.controller;
 
 import com.lunchbox.menuservice.entity.Item;
 import com.lunchbox.menuservice.entity.Restaurant;
-import com.lunchbox.menuservice.exceptions.ProductNotFoundException;
+import com.lunchbox.menuservice.model.RestaurantModel;
 import com.lunchbox.menuservice.service.MenuService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -26,13 +20,31 @@ public class MenuController {
 
     @GetMapping("")
     public List<Restaurant> allRestaurants() {
-        log.info("Finding all restaurants");
-        return menuService.getRestaurants();
+        log.info("Get all restaurants");
+        return menuService.getRestaurants(null);
     }
 
-    @GetMapping("/{code}")
-    public List<Item> productByCode(@PathVariable String code) {
-        log.info("Finding menu items for restaurant {} :", code);
-        return menuService.geMenuItems(code);
+    @GetMapping("/{id}")
+    public List<Restaurant> getRestaurant(@PathVariable String restaurantId) {
+        log.info("Get restaurant for restaurant Id : {}", restaurantId);
+        return menuService.getRestaurants(restaurantId);
+    }
+
+    @GetMapping("/items/{id}")
+    public List<Item> getItems(@PathVariable("id") String restaurantId) {
+        log.info("Finding menu items for restaurant id {} :", restaurantId);
+        return menuService.geMenuItems(restaurantId);
+    }
+
+    @PutMapping("/add")
+    public void addRestaurant(@RequestBody RestaurantModel body){
+        log.info("Adding new restaurant",body.toString());
+        menuService.addRestaurant(body);
+    }
+
+    @PutMapping("/items/{id}/add")
+    public void addItems(@PathVariable("id") String restaurantId, @RequestBody List<Item> body){
+        log.info("Adding items for restaurant : {}, items : {}", restaurantId, body.toString());
+        menuService.addItems(body, restaurantId);
     }
 }
